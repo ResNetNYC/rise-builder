@@ -1,0 +1,12 @@
+[Unit]
+Description=Sandstorm server
+After=local-fs.target remote-fs.target network.target
+Requires=local-fs.target remote-fs.target network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/sandstorm/sandstorm start
+ExecStop=/opt/sandstorm/sandstorm stop
+
+[Install]
+WantedBy=multi-user.target

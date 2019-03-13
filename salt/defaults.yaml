@@ -1,0 +1,26 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+
+drbd:
+  resource: r0
+  device: /dev/drbd1
+  port: 7789
+
+network:
+  hostname: primary
+  main_interface: enp3s0
+  cluster_interface: enp1s0
+  primary_address: 172.16.0.1
+  secondary_address: 172.16.0.2
+  cluster_netmask: 255.255.255.0
+
+volumes:
+  vgname: vg_rise
+  lvname_drbd: drbd
+  lvsize_drbd: 110G
+  lvname_drbd: backups
+  lvsize_drbd: 110G
+
+pcs:
+  user: hacluster
+  password: hacluster

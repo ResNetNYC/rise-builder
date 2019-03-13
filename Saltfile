@@ -1,0 +1,6 @@
+salt-call:
+  config_dir: config/
+  file_root: salt/
+  pillar_root: pillar/
+  log_file: /tmp/salt-call-log
+  local: true

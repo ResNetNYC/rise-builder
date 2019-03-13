@@ -1,0 +1,11 @@
+[Unit]
+Description=rsnapshot nightly backup
+
+[Timer]
+# 05:30 is the clock time when to start it
+OnCalendar=03:30
+Persistent=true
+Unit=rsnapshot@nightly.service
+
+[Install]
+WantedBy=timers.target

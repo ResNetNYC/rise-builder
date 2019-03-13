@@ -1,0 +1,16 @@
+file_roots:
+  base:
+    - salt
+pillar_roots:
+  base:
+    - pillar
+log_file: /tmp/salt-master-log
+log_level_logfile: trace
+root_dir: /tmp/salt-master/
+file_client: local
+gitfs_provider: pygit2
+fileserver_backend:
+  - roots
+  - git
+gitfs_remotes:
+  - git://github.com/chambana-net/systemd-timesyncd-formula.git
