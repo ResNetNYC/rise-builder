@@ -4,7 +4,6 @@
 {% from "map.jinja" import drbd with context %}
 {% from "map.jinja" import network with context %}
 {% from "map.jinja" import volumes with context %}
-{% set disk = '/dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }}' %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
 
 Install drbd:
@@ -22,7 +21,7 @@ Install drbd:
     - defaults:
         resource: {{ drbd.resource }}
         device: {{ drbd.device }}
-        disk: {{ disk }}
+        disk: /dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }}
         primary_address: {{ network.primary_address }}
         secondary_address: {{ network.secondary_address }}
         port: {{ drbd.port }}
@@ -31,7 +30,7 @@ Install drbd:
   
 Create drbd:
   cmd.run:
-    - name: drbdmeta --force 0 v08 {{ disk }} internal create-md
+    - name: drbdmeta --force 0 v08 /dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }} internal create-md
     - runas: root
     - creates: {{ drbd.device }}
     - require:

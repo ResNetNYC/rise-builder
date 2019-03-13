@@ -5,3 +5,4 @@
 {% set drbd = salt['pillar.get']('drbd', default=defaults.drbd, merge=true) %}
 {% set network = salt['pillar.get']('network', default=defaults.network, merge=true) %}
 {% set pcs = salt['pillar.get']('pcs', default=defaults.pcs, merge=true) %}
+{% set volumes = salt['pillar.get']('pcs', default=defaults.volumes, merge=true) %}

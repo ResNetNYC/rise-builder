@@ -18,8 +18,8 @@ volumes:
   vgname: vg_rise
   lvname_drbd: drbd
   lvsize_drbd: 110G
-  lvname_drbd: backups
-  lvsize_drbd: 110G
+  lvname_backups: backups
+  lvsize_backups: 110G
 
 pcs:
   user: hacluster

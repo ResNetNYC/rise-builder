@@ -2,8 +2,8 @@
 # vim: ft=sls
 
 {% from "map.jinja" import volumes with context %}
+{% from "map.jinja" import network with context %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
-{% set disk = 'volumes['vgname']/volumes['lvname_backups']' %}
 
 Format backups:
   pkg.installed:
@@ -11,7 +11,7 @@ Format backups:
       - e2fsprogs
 
   blockdev.formatted:
-    - name: /dev/{{ disk }}
+    - name: /dev/{{ volumes.vgname }}/{{ volumes.lvname_backups }}
     - fs_type: ext4
     - require:
       - pkg: Format backups
@@ -19,9 +19,10 @@ Format backups:
 Mount backups:
   mount.mounted:
     - name: /mnt/backups
-    - device: /dev/{{ disk }}
+    - device: /dev/{{ volumes.vgname }}/{{ volumes.lvname_backups }}
     - fstype: ext4
     - persist: True
+    - mkmnt: True
     - require:
       - blockdev: Format backups
 
@@ -40,26 +41,26 @@ Configure rsnapshot:
     - group: root
     - mode: 0644
     - defaults:
-        backup_volume: {{ disk }}
+        backup_volume: {{ volumes.vgname }}/{{ volumes.lvname_backups }}
 
 Install rsnapshot unit:
   file.managed:
-    - name: /etc/systemd/system/rsnapshot.service
-    - source: salt://files/rsnapshot.service
+    - name: /etc/systemd/system/rsnapshot@.service
+    - source: salt://files/rsnapshot@.service
     - user: root
     - group: root
     - mode: 0644
     
 Install rsnapshot timer:
   file.managed:
-    - name: /etc/systemd/system/rsnapshot.timer
-    - source: salt://files/rsnapshot.timer
+    - name: /etc/systemd/system/rsnapshot-nightly.timer
+    - source: salt://files/rsnapshot-nightly.timer
     - user: root
     - group: root
     - mode: 0644
 
   service.running:
-    - name rsnapshot.timer
+    - name: rsnapshot-nightly.timer
     - enable: true
     - require:
       - file: Install rsnapshot unit
@@ -81,7 +82,7 @@ Configure rsyncd:
 
 Run rsyncd:
   service.running:
-    - name rsyncd
+    - name: rsync
     - enable: true
     - require:
       - file: Configure rsyncd
