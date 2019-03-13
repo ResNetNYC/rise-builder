@@ -4,9 +4,10 @@
 base:
   '*':
     - salt
-    - docker
+    - volumes
     - drbd
     - network
+    - backups
     - pcs
     - sandstorm
     - unifi
