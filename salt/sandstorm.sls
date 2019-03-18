@@ -32,7 +32,7 @@ Configure sandstorm:
     - group: root
     - mode: 0644
     - defaults:
-        base_url: http://{{ fqdn }}
+        fqdn: {{ fqdn }}
 
 Restart sandstorm:
   service.running:

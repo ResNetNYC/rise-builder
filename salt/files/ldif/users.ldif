@@ -1,0 +1,18 @@
+dn: ou=Users,dc=rise-nyc,dc=com
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: Users
+
+dn: ou=Groups,dc=rise-nyc,dc=com
+changetype: add
+objectclass: top
+objectclass: organizationalUnit
+ou: Groups
+
+dn: cn=admins,ou=Groups,dc=rise-nyc,dc=com
+changetype: add
+objectclass: top
+objectclass: groupOfNames
+cn: admin
+

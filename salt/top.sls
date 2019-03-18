@@ -3,6 +3,8 @@
 
 base:
   '*':
+    - docker
+    - pwm
     - salt
     - volumes
     - drbd
