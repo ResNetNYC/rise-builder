@@ -7,12 +7,6 @@
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
 {% set fqdn = grains['fqdn'] %}
 
-Install htpasswd:
-  pkg.installed:
-    - name: apache2-utils
-    - require_in:
-      - file: Pwm config
-
 Ldap config directory:
   file.directory:
     - name: /opt/ldap/config
@@ -99,6 +93,7 @@ Pwm directory:
       - mount: Mount drbd
 {% endif %}
 
+{% if role == 'primary' %}
 Pwm config:
   file.managed:
     - name: /opt/pwm/PwmConfiguration.xml
@@ -109,11 +104,12 @@ Pwm config:
     - template: jinja
     - defaults:
         admin_password: {{ admin_password }}
-        admin_hash: {{ salt['cmd.shell']('htpasswd -bnBC 10 "" {{ salt['environ.get']('RISE_ADMIN_PASSWORD') }} | tr -d ":\n"', template='jinja') }}
+        admin_hash: {{ salt['bhash.hash'](admin_password) }}
         security_key: '{{ salt['grains.get_or_set_hash']('pwm:securityKey', length=64, chars='abcdefghijklmnopqrstuvwxyz0123456789') }}'
         fqdn: {{ fqdn }}
     - require:
       - file: Pwm directory
+{% endif %}
 
 Run pwm:
   docker_container.running:
@@ -131,7 +127,9 @@ Run pwm:
     - require:
       - service: docker
       - docker_network: Docker local network
+{% if role == 'primary' %}
       - file: Pwm config
+{% endif %}
       - file: Pwm directory
 
 {% if role == 'secondary' %}
@@ -140,4 +138,7 @@ Stop on secondary:
     - containers:
       - ldap
       - pwm
+    - require:
+      - docker_container: Run pwm
+      - docker_container: Run ldap
 {% endif %}

@@ -4,6 +4,8 @@
 {% from "map.jinja" import volumes with context %}
 {% from "map.jinja" import network with context %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
+{% set disk = salt['environ.get']('RISE_DISK') %}
+{% set backup_disk = salt['environ.get']('RISE_BACKUP_DISK') %}
 
 Format backups:
   pkg.installed:
@@ -11,7 +13,7 @@ Format backups:
       - e2fsprogs
 
   blockdev.formatted:
-    - name: /dev/{{ volumes.vgname }}/{{ volumes.lvname_backups }}
+    - name: {{ backup_disk }}
     - fs_type: ext4
     - require:
       - pkg: Format backups
@@ -19,7 +21,7 @@ Format backups:
 Mount backups:
   mount.mounted:
     - name: /mnt/backups
-    - device: /dev/{{ volumes.vgname }}/{{ volumes.lvname_backups }}
+    - device: {{ backup_disk }}
     - fstype: ext4
     - persist: True
     - mkmnt: True
@@ -41,7 +43,7 @@ Configure rsnapshot:
     - group: root
     - mode: 0644
     - defaults:
-        backup_volume: {{ volumes.vgname }}/{{ volumes.lvname_backups }}
+        backup_volume: {{ volumes.vgname }}/{{ volumes.lvname_drbd }}
 
 Install rsnapshot unit:
   file.managed:

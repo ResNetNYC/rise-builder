@@ -9,7 +9,7 @@ drbd:
 network:
   hostname: primary
   main_interface: enp3s0
-  cluster_interface: enp1s0
+  cluster_interface: enp2s0
   primary_address: 172.16.0.1
   secondary_address: 172.16.0.2
   cluster_netmask: 255.255.255.0
@@ -24,3 +24,7 @@ volumes:
 pcs:
   user: hacluster
   password: hacluster
+  cluster_name: debian
+
+unifi:
+  tz: America/New_York

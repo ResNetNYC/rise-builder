@@ -12,11 +12,20 @@ Install cluster tools:
       - pcs
       - psmisc
 
+Stop corosync:
+  service.dead:
+    - name: corosync
+
+Remove corosync config:
+  file.absent:
+    - name: /etc/corosync/corosync.conf
+
 Set hacluster user password:
   user.present:
     - name: {{ pcs.user }}
     - system: True
     - password: {{ pcs.password }}
+    - hash_password: True
 
 Start pcsd:
   service.running:
@@ -39,18 +48,21 @@ Authorize cluster nodes:
       - network: Configure cluster network
       - pkg: Install cluster tools
       - service: Start pcsd
+      - user: Set hacluster user password
+      - service: Stop corosync
+      - file: Remove corosync config
 
 Setup cluster:
   pcs.cluster_setup:
     - name: pcs_setup__setup
+    - pcsclustername: {{ pcs.cluster_name }}
     - nodes:
       - primary
       - secondary
-    - pcsuser: {{ pcs.user }}
-    - pcspasswd: {{ pcs.password }}
     - extra_args:
       - '--start'
       - '--enable'
+      - '--force'
     - require:
       - pkg: Install cluster tools
       - service: Start pcsd

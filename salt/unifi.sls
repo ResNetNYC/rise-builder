@@ -1,28 +1,48 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 
-ubiquiti_apt_packages:
-  pkg.installed:
-    - pkgs:
-      - python-apt
-      - aptitude
-      - debconf-utils
-      - apt-utils
-      - apt-transport-https
+{% from "map.jinja" import unifi with context %}
+{% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
 
-ubiquiti_repo:
-  pkgrepo.managed:
-    - humanname: Ubiquiti repo
-    - name: deb http://www.ui.com/downloads/unifi/debian stable ubiquiti
-    - file: /etc/apt/sources.list.d/ubiquiti.list
-    - gpgcheck: 1
-    - key_url: https://dl.ui.com/unifi/unifi-repo.gpg
+Unifi directory:
+  file.directory:
+    - name: /opt/pwm
+    - makedirs: True
+    - user: 999
+    - group: 999
+{% if role == 'primary' %}
     - require:
-      - pkg: ubiquiti_apt_packages
-    - require_in:
-      - pkg: ubiquiti_pkg
+      - mount: Mount drbd
+{% endif %}
 
-ubiquiti_pkg:
-  pkg.latest:
+Run unifi controller:
+  docker_container.running:
     - name: unifi
-    - refresh: True
+    - hostname: unifi
+    - image: jacobalberty/unifi:5.10
+    - restart_policy: unless-stopped
+    - log_driver: journald
+    - networks:
+      - local_network
+    - port_bindings:
+      - 8080:8080/tcp
+      - 8443:8443/tcp
+      - 3478:3478/udp
+      - 10001:10001/udp
+    - binds:
+      - /opt/unifi:/unifi:rw
+    - environment:
+      - TZ: {{ unifi.tz }}
+    - require:
+      - service: docker
+      - docker_network: Docker local network
+      - file: Unifi directory
+
+{% if role == 'secondary' %}
+Stop unifi on secondary:
+  docker_container.stopped:
+    - containers:
+      - unifi
+    - require:
+      - docker_container: Run unifi controller
+{% endif %}

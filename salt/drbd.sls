@@ -5,6 +5,7 @@
 {% from "map.jinja" import network with context %}
 {% from "map.jinja" import volumes with context %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
+{% set disk = salt['environ.get']('RISE_DISK') %}
 
 Install drbd:
   pkg.installed:
@@ -21,7 +22,7 @@ Install drbd:
     - defaults:
         resource: {{ drbd.resource }}
         device: {{ drbd.device }}
-        disk: /dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }}
+        disk: {{ disk }}
         primary_address: {{ network.primary_address }}
         secondary_address: {{ network.secondary_address }}
         port: {{ drbd.port }}
@@ -30,12 +31,11 @@ Install drbd:
   
 Create drbd:
   cmd.run:
-    - name: drbdmeta --force 0 v08 /dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }} internal create-md
+    - name: drbdmeta --force 0 v08 {{ disk }} internal create-md
     - runas: root
     - creates: {{ drbd.device }}
     - require:
       - file: Install drbd
-      - lvm: Create drbd volume
 
 Start drbd:
   cmd.run:
@@ -53,28 +53,47 @@ Sync drbd:
     - require:
       - cmd: Start drbd
 
-Format drbd:
+Use disk:
+  lvm.pv_present:
+    - name: {{ drbd.device }}
+    - require:
+      - cmd: Start drbd
+
+Create volume group:
+  lvm.vg_present:
+    - name: {{ volumes.vgname }}
+    - devices: {{ drbd.device }}
+    - require:
+      - lvm: Use disk
+
+Create drbd volume:
+  lvm.lv_present:
+    - name: {{ volumes.lvname_drbd }}
+    - vgname: {{ volumes.vgname }}
+    - extents: 100%VG
+    - require:
+      - lvm: Create volume group
+
+Format disk:
   pkg.installed:
     - pkgs:
       - e2fsprogs
 
   blockdev.formatted:
-    - name: {{ drbd.device }}
+    - name: /dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }}
     - fs_type: ext4
     - require:
-      - pkg: Format drbd
+      - pkg: Format disk
       - cmd: Sync drbd
 
 Mount drbd:
   mount.mounted:
     - name: /opt
-    - device: {{ drbd.device }}
+    - device: /dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }}
     - fstype: ext4
-    - persist: True
+    - persist: False
     - require:
-      - blockdev: Format drbd
-
-{% else %} 
+      - blockdev: Format disk
 
 Add drbd to cluster:
   pcs.resource_present:
