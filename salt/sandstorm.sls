@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{% set fqdn = grains['fqdn'] %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
+{% set hostname = salt['environ.get']('RISE_HOSTNAME') %}
+{% set domain = salt['environ.get']('RISE_DOMAIN') %}
 
 {% if role == 'primary' %}
 Download sandstorm:
@@ -18,7 +19,7 @@ Install sandstorm:
     - runas: root
     - creates: /opt/sandstorm/sandstorm.conf
     - env:
-      - BASE_URL: http://{{ fqdn }}
+      - BASE_URL: http://{{ hostname }}.{{ domain }}
     - require:
       - file: Download sandstorm
       - mount: Mount drbd
@@ -32,7 +33,7 @@ Configure sandstorm:
     - group: root
     - mode: 0644
     - defaults:
-        fqdn: {{ fqdn }}
+        fqdn: {{ hostname }}.{{ domain }}
 
 Restart sandstorm:
   service.running:

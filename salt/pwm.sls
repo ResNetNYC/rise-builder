@@ -5,7 +5,8 @@
 {% set admin_password = salt['environ.get']('RISE_ADMIN_PASSWORD') %}
 {% set sandstorm_password = salt['environ.get']('RISE_SANDSTORM_PASSWORD') %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
-{% set fqdn = grains['fqdn'] %}
+{% set hostname = salt['environ.get']('RISE_HOSTNAME') %}
+{% set domain = salt['environ.get']('RISE_DOMAIN') %}
 
 Ldap config directory:
   file.directory:
@@ -106,7 +107,7 @@ Pwm config:
         admin_password: {{ admin_password }}
         admin_hash: {{ salt['bhash.hash'](admin_password) }}
         security_key: '{{ salt['grains.get_or_set_hash']('pwm:securityKey', length=64, chars='abcdefghijklmnopqrstuvwxyz0123456789') }}'
-        fqdn: {{ fqdn }}
+        fqdn: {{ hostname }}.{{ domain }}
     - require:
       - file: Pwm directory
 

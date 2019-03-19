@@ -3,7 +3,7 @@
 
 {% from "map.jinja" import network with context %}
 {% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
-{% set hostname = salt['environ.get']('RISE_HOSTNAME') %}
+{% set hostname = grains['host'] %}
 {% set domain = salt['environ.get']('RISE_DOMAIN') %}
 {% set public_ip = salt['environ.get']('RISE_PUBLIC_IP') %}
 
