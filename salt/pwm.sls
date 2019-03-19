@@ -109,6 +109,42 @@ Pwm config:
         fqdn: {{ fqdn }}
     - require:
       - file: Pwm directory
+
+Add docker to cluster:
+  pcs.resource_present:
+    - name: systemd__resource_present_docker
+    - resource_id: docker
+    - resource_type: systemd:docker
+    - require:
+      - pcs: Setup cluster
+
+Docker colocation:
+  pcs.constraint_present:
+    - name: docker__constraint_present_docker_colocation
+    - constraint_id: colocation-docker-fs_r0
+    - constraint_type: colocation
+    - constraint_options:
+      - 'add'
+      - 'docker'
+      - 'with'
+      - 'fs_r0'
+    - require:
+      - pcs: Add docker to cluster
+      - pcs: Add filesystem to cluster
+
+Docker ordering:
+  pcs.constraint_present:
+    - name: docker__constraint_present_docker_order
+    - constraint_id: order-docker-fs_r0
+    - constraint_type: order
+    - constraint_options:
+      - 'fs_r0'
+      - 'then'
+      - 'docker'
+    - require:
+      - pcs: Add docker to cluster
+      - pcs: Add filesystem to cluster
+
 {% endif %}
 
 Run pwm:
@@ -136,9 +172,12 @@ Run pwm:
 Stop on secondary:
   docker_container.stopped:
     - containers:
-      - ldap
       - pwm
+      - ldap
+      - unifi
+    - enable: False
     - require:
       - docker_container: Run pwm
       - docker_container: Run ldap
+      - docker_container: Run unifi controller
 {% endif %}

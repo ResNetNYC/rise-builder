@@ -1,0 +1,8 @@
+[Unit]
+Description=rsync backups
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+ExecStart=/usr/bin/rsync -Huaz --delete --exclude lost+found rsync://primary/backups /mnt/backups/

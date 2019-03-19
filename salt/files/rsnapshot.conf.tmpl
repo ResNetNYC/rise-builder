@@ -69,12 +69,12 @@ cmd_logger	/usr/bin/logger
 # Specify the path to a script (and any optional arguments) to run right
 # before rsnapshot syncs files
 #
-cmd_preexec	/opt/sandstorm/sandstorm stop
+cmd_preexec	/opt/sandstorm/sandstorm stop; systemctl stop docker
 
 # Specify the path to a script (and any optional arguments) to run right
 # after rsnapshot syncs files
 #
-cmd_postexec	/opt/sandstorm/sandstorm start
+cmd_postexec	/opt/sandstorm/sandstorm start; systemctl start docker
 
 # Paths to lvcreate, lvremove, mount and umount commands, for use with
 # Linux LVMs.
@@ -234,7 +234,7 @@ linux_lvm_mountpath	/mnt/lvm_snapshots
 #backup	/foo/bar/	localhost/	one_fs=1, rsync_short_args=-urltvpog
 #backup_script	/usr/local/bin/backup_pgsql.sh	localhost/postgres/
 # You must set linux_lvm_* parameters below before using lvm snapshots
-backup	lvm://{{ backup_volume }}	{{ backup_volume }}
+backup	lvm://{{ backup_volume }}/	{{ backup_volume }}
 
 # EXAMPLE.COM
 #backup_exec	/bin/date "+ backup of example.com started at %c"

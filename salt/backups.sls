@@ -34,6 +34,7 @@ Install rsnapshot:
       - rsnapshot
       - rsync
 
+{% if role == 'primary' %}
 Configure rsnapshot:
   file.managed:
     - name: /etc/rsnapshot.conf
@@ -68,7 +69,6 @@ Install rsnapshot timer:
       - file: Install rsnapshot unit
       - file: Install rsnapshot timer
 
-{% if role == 'primary' %}
 Configure rsyncd:
   file.managed:
     - name: /etc/rsyncd.conf
@@ -88,6 +88,31 @@ Run rsyncd:
     - enable: true
     - require:
       - file: Configure rsyncd
+
+{% else %}
+Install rsync unit:
+  file.managed:
+    - name: /etc/systemd/system/rsync-backups.service
+    - source: salt://files/rsync-backups.service
+    - user: root
+    - group: root
+    - mode: 0644
+    
+Install rsync timer:
+  file.managed:
+    - name: /etc/systemd/system/rsync-backups.timer
+    - source: salt://files/rsync-backups.timer
+    - user: root
+    - group: root
+    - mode: 0644
+
+  service.running:
+    - name: rsync-backups.timer
+    - enable: true
+    - require:
+      - file: Install rsync unit
+      - file: Install rsync timer
+
 {% endif %}
 
 

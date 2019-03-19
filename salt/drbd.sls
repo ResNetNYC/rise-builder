@@ -70,7 +70,7 @@ Create drbd volume:
   lvm.lv_present:
     - name: {{ volumes.lvname_drbd }}
     - vgname: {{ volumes.vgname }}
-    - extents: 100%VG
+    - extents: 90%VG
     - require:
       - lvm: Create volume group
 
@@ -106,12 +106,49 @@ Add drbd to cluster:
       - 'monitor'
       - 'interval=60s'
       - '--master'
-      - 'master-max=1'
-      - 'master-node-max=1'
-      - 'clone-max=2'
-      - 'clone-node-max=1'
-      - 'notify=true'
     - require:
       - cmd: Sync drbd
       - pcs: Setup cluster
+
+Add filesystem to cluster:
+  pcs.resource_present:
+    - name: fs__resource_present_{{ drbd.resource }}
+    - resource_id: fs_{{ drbd.resource }}
+    - resource_type: ocf:heartbeat:Filesystem
+    - resource_options:
+      - 'device=/dev/{{ volumes.vgname }}/{{ volumes.lvname_drbd }}'
+      - 'directory=/opt'
+      - 'fstype=ext4'
+    - require:
+      - cmd: Sync drbd
+      - pcs: Setup cluster
+
+Filesystem colocation:
+  pcs.constraint_present:
+    - name: drbd__constraint_present_fs_{{ drbd.resource }}_colocation
+    - constraint_id: colocation-fs_{{ drbd.resource }}-drbd
+    - constraint_type: colocation
+    - constraint_options:
+      - 'add'
+      - 'fs_{{ drbd.resource }}'
+      - 'with'
+      - 'drbd_{{ drbd.resource }}-master'
+    - require:
+      - pcs: Add filesystem to cluster
+      - pcs: Add drbd to cluster
+
+Filesystem ordering:
+  pcs.constraint_present:
+    - name: drbd__constraint_present_fs_{{ drbd.resource }}_order
+    - constraint_id: order-fs_{{ drbd.resource }}-drbd
+    - constraint_type: order
+    - constraint_options:
+      - 'promote'
+      - 'drbd_{{ drbd.resource }}-master'
+      - 'then'
+      - 'start'
+      - 'fs_{{ drbd.resource }}'
+    - require:
+      - pcs: Add filesystem to cluster
+      - pcs: Add drbd to cluster
 {% endif %}

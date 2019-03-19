@@ -1,0 +1,10 @@
+[Unit]
+Description=rsync backups from primary
+
+[Timer]
+OnCalendar=05:30
+Persistent=true
+Unit=rsync-backups.service
+
+[Install]
+WantedBy=timers.target

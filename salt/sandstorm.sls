@@ -37,9 +37,45 @@ Configure sandstorm:
 Restart sandstorm:
   service.running:
     - name: sandstorm
-    - enable: True
+    - enable: False
     - watch:
       - file: Configure sandstorm
+
+Add Sandstorm to cluster:
+  pcs.resource_present:
+    - name: systemd__resource_present_sandstorm
+    - resource_id: sandstorm
+    - resource_type: systemd:sandstorm
+    - require:
+      - pcs: Setup cluster
+
+Sandstorm colocation:
+  pcs.constraint_present:
+    - name: sandstorm__constraint_present_sandstorm_colocation
+    - constraint_id: colocation-sandstorm-fs_r0
+    - constraint_type: colocation
+    - constraint_options:
+      - 'add'
+      - 'sandstorm'
+      - 'with'
+      - 'fs_r0'
+    - require:
+      - pcs: Add Sandstorm to cluster
+      - pcs: Add filesystem to cluster
+
+Sandstorm ordering:
+  pcs.constraint_present:
+    - name: sandstorm__constraint_present_sandstorm_order
+    - constraint_id: order-sandstorm-fs_r0
+    - constraint_type: order
+    - constraint_options:
+      - 'fs_r0'
+      - 'then'
+      - 'sandstorm'
+    - require:
+      - pcs: Add Sandstorm to cluster
+      - pcs: Add filesystem to cluster
+
 {% else %}
 Add sandstorm unit:
   file.managed:
