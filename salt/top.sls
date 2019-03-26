@@ -13,3 +13,4 @@ base:
     - sandstorm
     - timesyncd
     - unifi
+    - dnsmasq

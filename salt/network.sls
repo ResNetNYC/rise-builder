@@ -6,6 +6,8 @@
 {% set hostname = grains['host'] %}
 {% set domain = salt['environ.get']('RISE_DOMAIN') %}
 {% set public_ip = salt['environ.get']('RISE_PUBLIC_IP') %}
+{% set main_interface = salt['environ.get']('RISE_MAIN_INTERFACE', 'network.main_interface') %}
+{% set cluster_interface = salt['environ.get']('RISE_CLUSTER_INTERFACE', 'network.cluster_interface') %}
 
 Configure system:
   network.system:
@@ -17,7 +19,7 @@ Configure system:
 
 Configure main network:
   network.managed:
-    - name: {{ network.main_interface }}
+    - name: {{ main_interface }}
     - type: eth
     - proto: dhcp
     - require:
@@ -40,7 +42,7 @@ Configure secondary host alias:
 {% if role == 'primary' %}
 Configure cluster network:
   network.managed:
-    - name: {{ network.cluster_interface }}
+    - name: {{ cluster_interface }}
     - type: eth
     - proto: static
     - ipaddr: {{ network.primary_address }}
@@ -63,10 +65,24 @@ Add public IP to cluster:
     - require:
       - pcs: Setup cluster
 
+Public IP colocation:
+  pcs.constraint_present:
+    - name: network__constraint_present_publicip_colocation
+    - constraint_id: colocation-publicip-fs_r0
+    - constraint_type: colocation
+    - constraint_options:
+      - 'add'
+      - 'PublicIp'
+      - 'with'
+      - 'fs_r0'
+    - require:
+      - pcs: Add public IP to cluster
+      - pcs: Add filesystem to cluster
+
 {% else %}
 Configure cluster network:
   network.managed:
-    - name: {{ network.cluster_interface }}
+    - name: {{ cluster_interface }}
     - type: eth
     - proto: static
     - ipaddr: {{ network.secondary_address }}
