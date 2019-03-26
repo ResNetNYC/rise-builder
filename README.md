@@ -1,6 +1,6 @@
-RISE: NYC Neighborhood Network Setup Guide
+# RISE: NYC Neighborhood Network Setup Guide
 
-Server – Cluster Sync
+## Server – Cluster Sync
 
 Josh King – 26-Mar-2020.0
 
@@ -57,28 +57,31 @@ will finish the configuration:
     the automation software and run it. Login to the secondary server
     using the username and password you established in the first part of
     the guide and install the *salt-minion,* *python-pygit2, python-pip*
-    and* git *packages by running the following command:  
-    *sudo apt-get install salt-minion python-pygit2 python-pip git*
-2.  *We also need a slightly newer version of one dependency than is
+    and *git* packages by running the following command:  
+    `sudo apt-get install salt-minion python-pygit2 python-pip git`
+2.  We also need a slightly newer version of one dependency than is
     available in the Debian repository. Using the pip tool we just
     installed, run the following command:  
-    sudo pip install docker*
+    `sudo pip install docker`
 3.  Now, we are going to download the automation tool into our home
-    directory:  
-    *cd \~  
-    git clone
-    *[*https://github.com/jheretic/*](https://github.com/jheretic/pnk-builder.git)[*rise*](https://github.com/jheretic/pnk-builder.git)[*-builder.git*](https://github.com/jheretic/pnk-builder.git)
-4.  You should now have a directory called rise*-builder* in your home
+    directory:
+    ```
+    cd \~  
+    git clone https://github.com/jheretic/rise-builder.git
+    ```
+4.  You should now have a directory called `rise-builder` in your home
     directory. It contains information that will inform a tool called
-    *salt* (which we installed in step 1) how to configure this server
-    to our needs. Enter the directory and and run *salt* with the
-    following commands:  
-    *cd rise-builder  
+    `salt` (which we installed in step 1) how to configure this server
+    to our needs. Enter the directory and and run `salt` with the
+    following commands:
+    ```
+    cd rise-builder
     RISE\_HOSTNAME="\<hostname\>" RISE\_DOMAIN="\<domain\>"
     RISE\_DISK="\<partition 1\>" RISE\_BACKUP\_DISK="\<partition 2\>"
     RISE\_ROLE="secondary" RISE\_ADMIN\_PASSWORD="\<admin password\>"
     RISE\_SANDSTORM\_PASSWORD="\<sandstorm password\>"
-    RISE\_PUBLIC\_IP="\<IP address\>"salt-call state.highstate*  
+    RISE\_PUBLIC\_IP="\<IP address\>" salt-call state.highstate
+    ```
     That’s a lot, so let’s talk about each of those options we’re
     providing to *salt *via environment variables:  
     **RISE\_HOSTNAME** is the main hostname that you want your server
@@ -110,12 +113,14 @@ will finish the configuration:
     and mouse over to it, if you only have one). Complete steps 1-3
     above for the primary server, but when you get to step 4 instead run
     the following commands:  
-    *cd rise-builder  
+    ```
+    cd rise-builder  
     RISE\_HOSTNAME="\<hostname\>" RISE\_DOMAIN="\<domain\>"
     RISE\_DISK="\<partition 1\>" RISE\_BACKUP\_DISK="\<partition 2\>"
     RISE\_ROLE="primary" RISE\_ADMIN\_PASSWORD="\<admin password\>"
     RISE\_SANDSTORM\_PASSWORD="\<sandstorm password\>"
-    RISE\_PUBLIC\_IP="\<IP address\>"salt-call state.highstate*  
+    RISE\_PUBLIC\_IP="\<IP address\>" salt-call state.highstate
+    ```
     This command may take several minutes to complete. When it’s
     completed, you should now have a functional failover cluster\!
 
@@ -128,9 +133,9 @@ set it up:
 1.  We will need an admin token in order to set up Sandstorm. SSH into
     the primary server, and verify that Sandstorm is running by using
     the sandstorm command-line tool:  
-    *sandstorm status*  
+    `sandstorm status`
     If it reports that Sandstorm is running, generate an admin-token:  
-    *sandstorm admin-token*  
+    `sandstorm admin-token`  
     A unique URL will be printed on the screen. Visit that URL in your
     browser to proceed with setup.
 2.  Follow the on-screen instructions to install Sandstorm. When you
@@ -139,16 +144,16 @@ set it up:
     authentication server.
 3.  In the LDAP configuration popup, enter the following values in the
     corresponding boxes:  
-    LDAP Server URL: [*ldap://ldap:389*](ldap://ldap:389)  
-    Bind user DN: *cn=sandstorm,dc=rise-nyc,dc=com*  
-    Bind user password: \<the RISE\_SANDSTORM\_PASSWORD\> you specified
-    above  
-    Base DN: *ou=Users,dc=rise-nyc,dc=com*  
+    LDAP Server URL: `ldap://ldap:389`
+    Bind user DN: `cn=sandstorm,dc=rise-nyc,dc=com`
+    Bind user password: `\<RISE\_SANDSTORM\_PASSWORD\>` you specified
+    above
+    Base DN: `ou=Users,dc=rise-nyc,dc=com`
     All other options can be left to their default values. Click
     ‘Enable’.
 4.  When you reach the email settings, skip them for now.
 5.  Sandstorm should now be setup and running on the server\! You can
-    login as an admin by using the RISE\_ADMIN\_PASSWORD you specified
+    login as an admin by using the **RISE\_ADMIN\_PASSWORD** you specified
     above.
 
 ## Behind the scenes
