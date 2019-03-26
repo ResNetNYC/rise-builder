@@ -28,7 +28,7 @@ This guide assumes the following:
     ethernet ports. For the purposes of this guide, when looking at the
     ethernet ports on the side of the Cincoze DA-1000, the port
     connected to the internet is assumed to be the rightmost port. This
-    can be overridden by the setup script below.
+    can be overridden by the setup script below. (The Linux names of the interfaces on the Cincoze DA-1000 are, from left to right, `enp3so`, `enp1so`, `enp2so`, which is hopefully consistent across machines)
   - The servers are connected to each other via another ethernet cable
     connecting to another one of their ethernet ports. For the purposes
     of this guide, the port connecting the two servers is assumed to be
@@ -76,11 +76,11 @@ will finish the configuration:
     following commands:
     ```
     cd rise-builder
-    RISE\_HOSTNAME="\<hostname\>" RISE\_DOMAIN="\<domain\>"
-    RISE\_DISK="\<partition 1\>" RISE\_BACKUP\_DISK="\<partition 2\>"
-    RISE\_ROLE="secondary" RISE\_ADMIN\_PASSWORD="\<admin password\>"
-    RISE\_SANDSTORM\_PASSWORD="\<sandstorm password\>"
-    RISE\_PUBLIC\_IP="\<IP address\>" salt-call state.highstate
+    RISE_HOSTNAME="<hostname>" RISE_DOMAIN="<domain>"
+    RISE_DISK="<partition 1>" RISE_BACKUP_DISK="<partition 2>"
+    RISE_ROLE="secondary" RISE_ADMIN_PASSWORD="<admin password>"
+    RISE_SANDSTORM_PASSWORD="<sandstorm password>"
+    RISE_PUBLIC_IP="<IP address>" salt-call state.highstate
     ```
     That’s a lot, so let’s talk about each of those options we’re
     providing to *salt *via environment variables:  
@@ -97,7 +97,7 @@ will finish the configuration:
     server (e.g. /*dev/sdb2*).  
     **RISE\_ROLE** is the role this server performs in the failover
     cluster. It is either *primary* or *secondary.  
-    ***RISE\_ADMIN\_PASSWORD** is the initial administrative password
+    **RISE\_ADMIN\_PASSWORD** is the initial administrative password
     for logging into web applications on this server. It should be a
     strong password and kept in a safe place.  
     **RISE\_SANDSTORM\_PASSWORD** is the password that the app platform,
@@ -107,6 +107,8 @@ will finish the configuration:
     want the server to be available at. It should resolve to hostname
     specified above, and should be different from the IP address this
     server received from the network.  
+    **RISE\_MAIN\_INTERFACE** (optional) This is the name of the ethernet interface that is connected to the internet. Defaults to `enp3so`.  
+    **RISE\_CLUSTER\_INTERFACE** (optional) This is the name of the ethernet interface that is connected to the other member of the cluster. Defaults to `enp2so`.  
     This command may take several minutes to complete.
 5.  After the previous command has completed successfully, logout and
     switch to the primary server (you may have to switch the keyboard
@@ -115,11 +117,11 @@ will finish the configuration:
     the following commands:  
     ```
     cd rise-builder  
-    RISE\_HOSTNAME="\<hostname\>" RISE\_DOMAIN="\<domain\>"
-    RISE\_DISK="\<partition 1\>" RISE\_BACKUP\_DISK="\<partition 2\>"
-    RISE\_ROLE="primary" RISE\_ADMIN\_PASSWORD="\<admin password\>"
-    RISE\_SANDSTORM\_PASSWORD="\<sandstorm password\>"
-    RISE\_PUBLIC\_IP="\<IP address\>" salt-call state.highstate
+    RISE_HOSTNAME="<hostname>" RISE_DOMAIN="<domain>"
+    RISE_DISK="<partition 1>" RISE_BACKUP_DISK="<partition 2>"
+    RISE_ROLE="primary" RISE_ADMIN_PASSWORD="<admin password>"
+    RISE_SANDSTORM_PASSWORD="<sandstorm password>"
+    RISE_PUBLIC_IP="<IP address>" salt-call state.highstate
     ```
     This command may take several minutes to complete. When it’s
     completed, you should now have a functional failover cluster\!
@@ -144,13 +146,16 @@ set it up:
     authentication server.
 3.  In the LDAP configuration popup, enter the following values in the
     corresponding boxes:  
+    
     LDAP Server URL: `ldap://ldap:389`
+    
     Bind user DN: `cn=sandstorm,dc=rise-nyc,dc=com`
-    Bind user password: `\<RISE\_SANDSTORM\_PASSWORD\>` you specified
-    above
+    
+    Bind user password: `<RISE_SANDSTORM_PASSWORD>` you specified above
+    
     Base DN: `ou=Users,dc=rise-nyc,dc=com`
-    All other options can be left to their default values. Click
-    ‘Enable’.
+    
+    All other options can be left to their default values. Click ‘Enable’.
 4.  When you reach the email settings, skip them for now.
 5.  Sandstorm should now be setup and running on the server\! You can
     login as an admin by using the **RISE\_ADMIN\_PASSWORD** you specified
