@@ -7,7 +7,7 @@
 
 Install dnsmasq:
   pkg.installed:
-    pkgs:
+    - pkgs:
       - dnsmasq
 
 Configure dnsmasq:
