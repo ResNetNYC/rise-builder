@@ -102,6 +102,7 @@ Add drbd to cluster:
     - resource_type: ocf:linbit:drbd
     - resource_options:
       - 'drbd_resource={{ drbd.resource }}'
+      - 'ignore_missing_notifications=true'
       - 'op'
       - 'monitor'
       - 'interval=60s'

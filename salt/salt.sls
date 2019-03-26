@@ -27,3 +27,9 @@ salt_pkg:
     - name: salt-minion
     - refresh: True
 
+salt_service:
+  service.dead:
+    - name: salt-minion
+    - enable: False
+    - require:
+      - pkg: salt_pkg

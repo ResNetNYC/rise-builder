@@ -67,4 +67,12 @@ Setup cluster:
       - pkg: Install cluster tools
       - service: Start pcsd
       - pcs: Authorize cluster nodes
+
+Disable stonith:
+  pcs.prop_has_value:
+    - name: pcs_properties__prop_has_value_stonith-enabled
+    - prop: stonith-enabled
+    - value: false
+    - require:
+      - pcs: Setup cluster
 {% endif %}
