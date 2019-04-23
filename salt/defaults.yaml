@@ -8,15 +8,12 @@ drbd:
 
 network:
   hostname: primary
-  main_interface: enp3s0
-  cluster_interface: enp2s0
-  primary_address: 172.16.0.1
-  secondary_address: 172.16.0.2
-  cluster_netmask: 255.255.255.0
+  primary_address: 10.1.0.10
+  secondary_address: 10.2.0.10
 
 volumes:
   vgname: vg_rise
-  lvname_drbd: drbd
+  lvname_drbd: apps
   lvsize_drbd: 110G
   lvname_backups: backups
   lvsize_backups: 110G

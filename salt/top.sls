@@ -6,11 +6,9 @@ base:
     - docker
     - pwm
     - salt
-    - drbd
-    - network
     - backups
-    - pcs
     - sandstorm
     - timesyncd
     - unifi
+    - unms
     - dnsmasq

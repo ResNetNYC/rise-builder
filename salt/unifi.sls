@@ -2,18 +2,13 @@
 # vim: ft=sls
 
 {% from "map.jinja" import unifi with context %}
-{% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
 
 Unifi directory:
   file.directory:
-    - name: /opt/pwm
+    - name: /opt/unifi
     - makedirs: True
     - user: 999
     - group: 999
-{% if role == 'primary' %}
-    - require:
-      - mount: Mount drbd
-{% endif %}
 
 Run unifi controller:
   docker_container.running:
@@ -37,3 +32,21 @@ Run unifi controller:
       - service: docker
       - docker_network: Docker local network
       - file: Unifi directory
+
+Unifi Apache config:
+  apache.configfile:
+    - name: /etc/apache2/sites-available/unifi.conf
+    - config:
+      - Virtualhost:
+          this: '*:80'
+          ServerName:
+            - unifi.{{ grains['domain'] }}
+          Location:
+            this: '/'
+            ProxyPreserveHost: On
+            ProxyPass: http://{{ grains['fqdn'] }}:8080
+            ProxyPassReverse: http://{{ grains['fqdn'] }}:8080
+
+Enable unifi site:
+  apache_site.enable:
+    - name: unifi.conf

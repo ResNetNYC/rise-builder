@@ -1,0 +1,13 @@
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation; either version 2.1 of the License, or
+#  (at your option) any later version.
+
+[Unit]
+Description=RISE Primary Server
+Requires=basic.target anacron.service  apache2.service  console-setup.service  containerd.service  cron.service  docker.service  mongodb.service  networking.service  remote-fs.target  rsnapshot-nightly.timer rsyslog.service  ssh.service  unifi.service
+Conflicts=rescue.service rescue.target secondary.target
+After=basic.target rescue.service rescue.target
+AllowIsolate=yes

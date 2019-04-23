@@ -3,30 +3,6 @@
 
 {% from "map.jinja" import volumes with context %}
 {% from "map.jinja" import network with context %}
-{% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
-{% set disk = salt['environ.get']('RISE_DISK') %}
-{% set backup_disk = salt['environ.get']('RISE_BACKUP_DISK') %}
-
-Format backups:
-  pkg.installed:
-    - pkgs:
-      - e2fsprogs
-
-  blockdev.formatted:
-    - name: {{ backup_disk }}
-    - fs_type: ext4
-    - require:
-      - pkg: Format backups
-
-Mount backups:
-  mount.mounted:
-    - name: /mnt/backups
-    - device: {{ backup_disk }}
-    - fstype: ext4
-    - persist: True
-    - mkmnt: True
-    - require:
-      - blockdev: Format backups
 
 Install rsnapshot:
   pkg.installed:
@@ -34,17 +10,13 @@ Install rsnapshot:
       - rsnapshot
       - rsync
 
-{% if role == 'primary' %}
 Configure rsnapshot:
   file.managed:
     - name: /etc/rsnapshot.conf
     - source: salt://files/rsnapshot.conf.tmpl
-    - template: jinja
     - user: root
     - group: root
     - mode: 0644
-    - defaults:
-        backup_volume: {{ volumes.vgname }}/{{ volumes.lvname_drbd }}
 
 Install rsnapshot unit:
   file.managed:
@@ -79,8 +51,6 @@ Configure rsyncd:
     - mode: 0644
     - defaults:
         bind_address: {{ network.primary_address }}
-    - require:
-      - network: Configure cluster network
 
 Run rsyncd:
   service.running:
@@ -89,7 +59,6 @@ Run rsyncd:
     - require:
       - file: Configure rsyncd
 
-{% else %}
 Install rsync unit:
   file.managed:
     - name: /etc/systemd/system/rsync-backups.service
@@ -113,6 +82,18 @@ Install rsync timer:
       - file: Install rsync unit
       - file: Install rsync timer
 
-{% endif %}
+Install primary target:
+  file.managed:
+    - name: /etc/systemd/system/primary.target
+    - source: salt://files/primary.target
+    - user: root
+    - group: root
+    - mode: 0644
 
-
+Install secondary target:
+  file.managed:
+    - name: /etc/systemd/system/secondary.target
+    - source: salt://files/secondary.target
+    - user: root
+    - group: root
+    - mode: 0644

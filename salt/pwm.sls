@@ -4,9 +4,6 @@
 {% from "map.jinja" import pwm with context %}
 {% set admin_password = salt['environ.get']('RISE_ADMIN_PASSWORD') %}
 {% set sandstorm_password = salt['environ.get']('RISE_SANDSTORM_PASSWORD') %}
-{% set role = salt['environ.get']('RISE_ROLE', 'secondary') %}
-{% set hostname = salt['environ.get']('RISE_HOSTNAME') %}
-{% set domain = salt['environ.get']('RISE_DOMAIN') %}
 
 Ldap config directory:
   file.directory:
@@ -14,10 +11,6 @@ Ldap config directory:
     - makedirs: True
     - user: nobody
     - group: nogroup
-{% if role == 'primary' %}
-    - require:
-      - mount: Mount drbd
-{% endif %}
 
 Ldap data directory:
   file.directory:
@@ -25,10 +18,6 @@ Ldap data directory:
     - makedirs: True
     - user: nobody
     - group: nogroup
-{% if role == 'primary' %}
-    - require:
-      - mount: Mount drbd
-{% endif %}
 
 Seed ldif files:
   file.recurse:
@@ -37,10 +26,6 @@ Seed ldif files:
     - makedirs: True
     - user: nobody
     - group: nogroup
-{% if role == 'primary' %}
-    - require:
-      - mount: Mount drbd
-{% endif %}
 
 Docker local network:
   docker_network.present:
@@ -89,12 +74,7 @@ Pwm directory:
     - makedirs: True
     - user: 1234
     - group: 1234
-{% if role == 'primary' %}
-    - require:
-      - mount: Mount drbd
-{% endif %}
 
-{% if role == 'primary' %}
 Pwm config:
   file.managed:
     - name: /opt/pwm/PwmConfiguration.xml
@@ -107,46 +87,9 @@ Pwm config:
         admin_password: {{ admin_password }}
         admin_hash: {{ salt['bhash.hash'](admin_password) }}
         security_key: '{{ salt['grains.get_or_set_hash']('pwm:securityKey', length=64, chars='abcdefghijklmnopqrstuvwxyz0123456789') }}'
-        fqdn: {{ hostname }}.{{ domain }}
+        fqdn: pwm.{{ grains['domain'] }}
     - require:
       - file: Pwm directory
-
-Add docker to cluster:
-  pcs.resource_present:
-    - name: systemd__resource_present_docker
-    - resource_id: docker
-    - resource_type: systemd:docker
-    - require:
-      - pcs: Setup cluster
-
-Docker colocation:
-  pcs.constraint_present:
-    - name: docker__constraint_present_docker_colocation
-    - constraint_id: colocation-docker-fs_r0
-    - constraint_type: colocation
-    - constraint_options:
-      - 'add'
-      - 'docker'
-      - 'with'
-      - 'fs_r0'
-    - require:
-      - pcs: Add docker to cluster
-      - pcs: Add filesystem to cluster
-
-Docker ordering:
-  pcs.constraint_present:
-    - name: docker__constraint_present_docker_order
-    - constraint_id: order-docker-fs_r0
-    - constraint_type: order
-    - constraint_options:
-      - 'fs_r0'
-      - 'then'
-      - 'docker'
-    - require:
-      - pcs: Add docker to cluster
-      - pcs: Add filesystem to cluster
-
-{% endif %}
 
 Run pwm:
   docker_container.running:
@@ -164,21 +107,5 @@ Run pwm:
     - require:
       - service: docker
       - docker_network: Docker local network
-{% if role == 'primary' %}
       - file: Pwm config
-{% endif %}
       - file: Pwm directory
-
-{% if role == 'secondary' %}
-Stop on secondary:
-  docker_container.stopped:
-    - containers:
-      - pwm
-      - ldap
-      - unifi
-    - enable: False
-    - require:
-      - docker_container: Run pwm
-      - docker_container: Run ldap
-      - docker_container: Run unifi controller
-{% endif %}

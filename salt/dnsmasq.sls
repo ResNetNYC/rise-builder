@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 # vim: ft=sls
 
-{% set hostname = salt['environ.get']('RISE_HOSTNAME') %}
-{% set domain = salt['environ.get']('RISE_DOMAIN') %}
-{% set public_ip = salt['environ.get']('RISE_PUBLIC_IP') %}
+{% from "map.jinja" import network with context %}
+{% set role = salt['environ.get']('RISE_ROLE') %}
 
 Install dnsmasq:
   pkg.installed:
@@ -19,8 +18,12 @@ Configure dnsmasq:
     - mode: 0644
     - template: jinja
     - defaults:
-        fqdn: {{ hostname }}.{{ domain }}
-        ip: {{ public_ip }}
+        fqdn: {{ grains['domain'] }}
+{% if role == 'primary' %}
+        ip: {{ network.primary_address }}
+{% else %}
+        ip: {{ network.secondary_address }}
+{% endif %}
     - require:
       - pkg: Install dnsmasq
 
