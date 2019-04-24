@@ -79,10 +79,10 @@ cmd_postexec	/opt/sandstorm/sandstorm start; systemctl start unifi; systemctl st
 # Paths to lvcreate, lvremove, mount and umount commands, for use with
 # Linux LVMs.
 #
-linux_lvm_cmd_lvcreate	/sbin/lvcreate
-linux_lvm_cmd_lvremove	/sbin/lvremove
-linux_lvm_cmd_mount	/bin/mount
-linux_lvm_cmd_umount	/bin/umount
+#linux_lvm_cmd_lvcreate	/sbin/lvcreate
+#linux_lvm_cmd_lvremove	/sbin/lvremove
+#linux_lvm_cmd_mount	/bin/mount
+#linux_lvm_cmd_umount	/bin/umount
 
 #########################################
 #     BACKUP LEVELS / INTERVALS         #
@@ -234,9 +234,9 @@ lockfile	/var/run/rsnapshot.pid
 #backup	/foo/bar/	localhost/	one_fs=1, rsync_short_args=-urltvpog
 #backup_script	/usr/local/bin/backup_pgsql.sh	localhost/postgres/
 # You must set linux_lvm_* parameters below before using lvm snapshots
-backup	/opt/sandstorm	sandstorm
-backup	/home/unms	unms
-backup	/var/lib/unifi	unifi
+backup	/opt/sandstorm	localhost/
+backup	/home/unms	localhost/
+backup	/var/lib/unifi	localhost/
 
 # EXAMPLE.COM
 #backup_exec	/bin/date "+ backup of example.com started at %c"

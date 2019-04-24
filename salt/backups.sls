@@ -59,6 +59,14 @@ Run rsyncd:
     - require:
       - file: Configure rsyncd
 
+Install rsync script:
+  file.managed:
+    - name: /usr/local/sbin/rsync-backups.sh
+    - source: salt://files/rsync-backups.sh
+    - user: root
+    - group: root
+    - mode: 0755
+
 Install rsync unit:
   file.managed:
     - name: /etc/systemd/system/rsync-backups.service

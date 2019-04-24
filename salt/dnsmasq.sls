@@ -19,11 +19,7 @@ Configure dnsmasq:
     - template: jinja
     - defaults:
         fqdn: {{ grains['domain'] }}
-{% if role == 'primary' %}
         ip: {{ network.primary_address }}
-{% else %}
-        ip: {{ network.secondary_address }}
-{% endif %}
     - require:
       - pkg: Install dnsmasq
 

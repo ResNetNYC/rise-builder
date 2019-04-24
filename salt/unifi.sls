@@ -38,14 +38,22 @@ Unifi Apache config:
     - name: /etc/apache2/sites-available/unifi.conf
     - config:
       - Virtualhost:
-          this: '*:80'
+          this: 'unifi.{{ grains['domain'] }}:80'
           ServerName:
             - unifi.{{ grains['domain'] }}
+          Redirect: / https://{{ grains['fqdn'] }}:8443
+      - Virtualhost:
+          this: 'unifi.{{ grains['domain'] }}:8443'
+          ServerName:
+            - unifi.{{ grains['domain'] }}
+          SSLProxyEngine: On
+          ProxyRequests: Off
+          Redirect: / https://{{ grains['fqdn'] }}:8443
           Location:
             this: '/'
             ProxyPreserveHost: On
-            ProxyPass: http://{{ grains['fqdn'] }}:8080
-            ProxyPassReverse: http://{{ grains['fqdn'] }}:8080
+            ProxyPass: https://{{ grains['fqdn'] }}:8443
+            ProxyPassReverse: https://{{ grains['fqdn'] }}:8443
 
 Enable unifi site:
   apache_site.enable:

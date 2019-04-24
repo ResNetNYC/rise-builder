@@ -7,7 +7,7 @@ Install Apache:
 
 Install UNMS:
   cmd.script:
-    - name: cmd --http-port 9000 --https-port 9443
+    - name: cmd --http-port 9000 --https-port 9443 --unattended
     - source: https://raw.githubusercontent.com/Ubiquiti-App/UNMS/master/install.sh
     - runas: root
 
