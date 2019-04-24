@@ -1,15 +1,9 @@
 #!/bin/bash
 
-systemctl enable docker
-systemctl start docker
-systemctl enable containerd
-systemctl start containerd
-systemctl enable sandstorm
-systemctl start sandstorm
-systemctl enable unifi
-systemctl start unifi
+systemctl enable docker sandstorm unifi rsync rsnapshot-nightly.timer
+systemctl start docker sandstorm unifi rsync rsnapshot-nightly.timer
 systemctl disable rsync-backups.timer
 systemctl stop rsync-backups.timer
 
-cp /usr/local/share/dnsmasq.conf.secondary /etc/dnsmasq.conf
+cp /usr/local/share/dnsmasq.conf.primary /etc/dnsmasq.conf
 systemctl restart dnsmasq

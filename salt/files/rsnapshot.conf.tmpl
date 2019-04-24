@@ -69,12 +69,12 @@ cmd_logger	/usr/bin/logger
 # Specify the path to a script (and any optional arguments) to run right
 # before rsnapshot syncs files
 #
-cmd_preexec	/opt/sandstorm/sandstorm stop; systemctl stop unifi; systemctl stop docker
+cmd_preexec	/bin/systemctl stop sandstorm unifi docker
 
 # Specify the path to a script (and any optional arguments) to run right
 # after rsnapshot syncs files
 #
-cmd_postexec	/opt/sandstorm/sandstorm start; systemctl start unifi; systemctl start docker
+cmd_postexec	/bin/systemctl start sandstorm unifi docker
 
 # Paths to lvcreate, lvremove, mount and umount commands, for use with
 # Linux LVMs.
