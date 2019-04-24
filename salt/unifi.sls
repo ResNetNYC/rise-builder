@@ -15,7 +15,7 @@ Unifi repo:
     - require_in:
       - pkg: Unifi package
 
-Unifi pkg:
+Unifi package:
   pkg.latest:
     - name: unifi
     - refresh: True
@@ -25,7 +25,7 @@ Unifi service:
     - name: unifi
     - enable: True
     - require:
-      - pkg: Unifi pkg
+      - pkg: Unifi package
 
 #Unifi Apache config:
 #  apache.configfile:
