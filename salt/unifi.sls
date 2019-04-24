@@ -3,35 +3,29 @@
 
 {% from "map.jinja" import unifi with context %}
 
-Unifi directory:
-  file.directory:
-    - name: /opt/unifi
-    - makedirs: True
-    - user: 999
-    - group: 999
-
-Run unifi controller:
-  docker_container.running:
-    - name: unifi
-    - hostname: unifi
-    - image: jacobalberty/unifi:5.10
-    - restart_policy: unless-stopped
-    - log_driver: journald
-    - networks:
-      - local_network
-    - port_bindings:
-      - 8080:8080/tcp
-      - 8443:8443/tcp
-      - 3478:3478/udp
-      - 10001:10001/udp
-    - binds:
-      - /opt/unifi:/unifi:rw
-    - environment:
-      - TZ: {{ unifi.tz }}
+Unifi repo:
+  pkgrepo.managed:
+    - humanname: Unifi repo
+    - name: deb http://www.ui.com/downloads/unifi/debian stable ubiquiti
+    - file: /etc/apt/sources.list.d/100-ubnt-unifi.list
+    - gpgcheck: 1
+    - key_url: https://dl.ui.com/unifi/unifi-repo.gpg
     - require:
-      - service: docker
-      - docker_network: Docker local network
-      - file: Unifi directory
+      - pkg: apt_packages
+    - require_in:
+      - pkg: Unifi package
+
+Unifi pkg:
+  pkg.latest:
+    - name: unifi
+    - refresh: True
+
+Unifi service:
+  service.running:
+    - name: unifi
+    - enable: True
+    - require:
+      - pkg: Unifi pkg
 
 #Unifi Apache config:
 #  apache.configfile:
