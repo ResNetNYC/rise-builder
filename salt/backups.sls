@@ -90,18 +90,18 @@ Install rsync timer:
       - file: Install rsync unit
       - file: Install rsync timer
 
-Install primary target:
+Install make-primary script:
   file.managed:
-    - name: /etc/systemd/system/primary.target
-    - source: salt://files/primary.target
+    - name: /usr/local/sbin/make-primary.sh
+    - source: salt://files/make-primary.sh
     - user: root
     - group: root
-    - mode: 0644
+    - mode: 0755
 
-Install secondary target:
+Install make-secondary script:
   file.managed:
-    - name: /etc/systemd/system/secondary.target
-    - source: salt://files/secondary.target
+    - name: /usr/local/sbin/make-secondary.sh
+    - source: salt://files/make-secondary.sh
     - user: root
     - group: root
-    - mode: 0644
+    - mode: 0755
