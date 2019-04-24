@@ -1,7 +1,7 @@
 #!/bin/bash
 
-systemctl stop docker sandstorm unifi rsync rsnapshot-nightly.timer
-systemctl disable docker sandstorm unifi rsync rsnapshot-nightly.timer
+systemctl stop docker containerd sandstorm unifi rsync rsnapshot-nightly.timer
+systemctl disable docker containerd sandstorm unifi rsync rsnapshot-nightly.timer
 systemctl enable rsync-backups.timer
 systemctl start rsync-backups.timer
 

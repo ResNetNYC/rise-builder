@@ -69,7 +69,7 @@ cmd_logger	/usr/bin/logger
 # Specify the path to a script (and any optional arguments) to run right
 # before rsnapshot syncs files
 #
-cmd_preexec	/bin/systemctl stop sandstorm unifi docker
+cmd_preexec	/bin/systemctl stop sandstorm unifi docker containerd
 
 # Specify the path to a script (and any optional arguments) to run right
 # after rsnapshot syncs files
