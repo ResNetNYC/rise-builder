@@ -33,28 +33,28 @@ Run unifi controller:
       - docker_network: Docker local network
       - file: Unifi directory
 
-Unifi Apache config:
-  apache.configfile:
-    - name: /etc/apache2/sites-available/unifi.conf
-    - config:
-      - Virtualhost:
-          this: 'unifi.{{ grains['domain'] }}:80'
-          ServerName:
-            - unifi.{{ grains['domain'] }}
-          Redirect: / https://{{ grains['fqdn'] }}:8443
-      - Virtualhost:
-          this: 'unifi.{{ grains['domain'] }}:8443'
-          ServerName:
-            - unifi.{{ grains['domain'] }}
-          SSLProxyEngine: On
-          ProxyRequests: Off
-          Redirect: / https://{{ grains['fqdn'] }}:8443
-          Location:
-            this: '/'
-            ProxyPreserveHost: On
-            ProxyPass: https://{{ grains['fqdn'] }}:8443
-            ProxyPassReverse: https://{{ grains['fqdn'] }}:8443
-
-Enable unifi site:
-  apache_site.enable:
-    - name: unifi.conf
+#Unifi Apache config:
+#  apache.configfile:
+#    - name: /etc/apache2/sites-available/unifi.conf
+#    - config:
+#      - Virtualhost:
+#          this: 'unifi.{# grains['domain'] }}:80'
+#          ServerName:
+#            - unifi.{{ grains['domain'] }}
+#          Redirect: / https://{{ grains['fqdn'] }}:8443
+#      - Virtualhost:
+#          this: 'unifi.{{ grains['domain'] }}:8443'
+#          ServerName:
+#            - unifi.{{ grains['domain'] }}
+#          SSLProxyEngine: On
+#          ProxyRequests: Off
+#          Redirect: / https://{{ grains['fqdn'] }}:8443
+#          Location:
+#            this: '/'
+#            ProxyPreserveHost: On
+#            ProxyPass: https://{{ grains['fqdn'] }}:8443
+#            ProxyPassReverse: https://{{ grains['fqdn'] #}:8443
+#
+#Enable unifi site:
+#  apache_site.enable:
+#    - name: unifi.conf

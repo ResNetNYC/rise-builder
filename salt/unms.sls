@@ -11,20 +11,20 @@ Install UNMS:
     - source: https://raw.githubusercontent.com/Ubiquiti-App/UNMS/master/install.sh
     - runas: root
 
-UNMS Apache config:
-  apache.configfile:
-    - name: /etc/apache2/sites-available/unms.conf
-    - config:
-      - Virtualhost:
-          this: '*:80'
-          ServerName:
-            - unms.{{ grains['domain'] }}
-          Location:
-            this: '/'
-            ProxyPreserveHost: On
-            ProxyPass: http://{{ grains['fqdn'] }}:9000
-            ProxyPassReverse: http://{{ grains['fqdn'] }}:9000
-
-Enable UNMS site:
-  apache_site.enable:
-    - name: unms.conf
+#UNMS Apache config:
+#  apache.configfile:
+#    - name: /etc/apache2/sites-available/unms.conf
+#    - config:
+#      - Virtualhost:
+#          this: '*:80'
+#          ServerName:
+#            - unms.{# grains['domain'] }}
+#          Location:
+#            this: '/'
+#            ProxyPreserveHost: On
+#            ProxyPass: http://{{ grains['fqdn'] }}:9000
+#            ProxyPassReverse: http://{{ grains['fqdn'] #}:9000
+#
+#Enable UNMS site:
+#  apache_site.enable:
+#    - name: unms.conf
